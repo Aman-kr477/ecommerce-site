@@ -26,6 +26,20 @@ export function createOrderService(store: Store) {
       validatedCode = codeResult;
     }
 
+    // Validate stock for all items
+    for (const item of cart.items) {
+      const product = store.products.get(item.productId);
+      if (!product) {
+        return { error: `Product '${item.productId}' no longer exists`, statusCode: 400 };
+      }
+      if (product.stock < item.quantity) {
+        return {
+          error: `Insufficient stock for '${product.name}': requested ${item.quantity}, available ${product.stock}`,
+          statusCode: 400,
+        };
+      }
+    }
+
     // --- Phase 2: Mutation ---
 
     const subtotal = cart.subtotal;
@@ -51,6 +65,14 @@ export function createOrderService(store: Store) {
 
     if (validatedCode) {
       discountService.markCodeUsed(validatedCode.code);
+    }
+
+    // Deduct stock for each item
+    for (const item of cart.items) {
+      const product = store.products.get(item.productId);
+      if (product) {
+        product.stock -= item.quantity;
+      }
     }
 
     // Clear the cart
