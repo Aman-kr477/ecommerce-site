@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import { Store } from './models/types';
 import { createProductRouter } from './routes/products';
 import { createCartRouter } from './routes/carts';
+import { createOrderRouter } from './routes/orders';
 import { createAdminRouter } from './routes/admin';
 
 export function createApp(store: Store): Application {
@@ -12,6 +13,7 @@ export function createApp(store: Store): Application {
   // Routes
   app.use('/api/v1/products', createProductRouter(store));
   app.use('/api/v1/carts', createCartRouter(store));
+  app.use('/api/v1/orders', createOrderRouter(store));
   app.use('/api/v1/admin', createAdminRouter(store));
 
   // 404 handler for unmatched routes
